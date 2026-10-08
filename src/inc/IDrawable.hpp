@@ -24,7 +24,7 @@ class DrawStack {
 class IDrawable {
     private:
         int heightZ;
-        DrawStack stack;
+        DrawStack* stack;
         bool inStack = false;
     public:
         virtual ~IDrawable() = default;
@@ -40,7 +40,9 @@ class IDrawable {
         
         void removeFromStack();
         void setZHeight(int newZHeight);
-        void setInStack(DrawStack newStack);
+        void setInStack(DrawStack* newStack);
+        bool getInStack();
+        bool isThisStack(DrawStack* compStack);
 
 };
 

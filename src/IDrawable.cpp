@@ -7,6 +7,7 @@ void DrawStack::Draw() {
     for (std::vector<IDrawable*>::iterator drawable = addList.begin(); drawable != //
         addList.end(); drawable++) {
             drawList.push_back(*drawable);
+            drawable->setInStack(this);
         }
     addList.clear();
     std::stable_sort(drawList.begin(), drawList.end(), lesserDepthComparer{});
@@ -20,12 +21,18 @@ void DrawStack::Draw() {
 }
 
 void DrawStack::addToStack(IDrawable *drawable) {
-    drawList.insert(drawable);
-    drawable->setInStack(*this);
+    addList.insert(drawable);
 }
 
 void DrawStack::removeFromStack(IDrawable *drawable) {
-    drawList.erase(drawable);
+    if drawable->isThisStack(this)
+    {
+    if (drawable->getInStack())
+        drawList.erase(drawable);
+    else
+        addList.erase(drawable);
+    }
+    //do something with bad state
 }
 
 int IDrawable::getZHeight() const{
@@ -34,7 +41,7 @@ int IDrawable::getZHeight() const{
 
 void IDrawable::removeFromStack() {
     if (inStack){
-        stack.removeFromStack(this);
+        stack->removeFromStack(this);
         inStack = false;
     }   
 
@@ -44,7 +51,15 @@ void IDrawable::setZHeight(int newZHeight) {
     heightZ = newZHeight;
 }
 
-void IDrawable::setInStack(DrawStack newStack) {
+void IDrawable::setInStack(DrawStack* newStack) {
     stack = newStack;
     inStack = true;
+}
+
+bool IDrawable::getInStack() {
+    return inStack();
+}
+
+bool IDrawable::isThisStack(DrawStack* compStack) {
+    return compStack == stack;
 }
