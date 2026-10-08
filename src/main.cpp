@@ -18,26 +18,25 @@ std::mutex stacklock;
 DrawStack stack = DrawStack();
 
 Vector2 playerPos;
-float playerSpeed = 200.0f;
+float playerSpeed = 2000.0f;
 Sprite playerSprite = Sprite(BLUE);
 bool running;
 
-void render() {
+std::array<bool,338> inputs;
 
-}
 
-void game() {
-    float dt = 0.0167;
+void processInputs() {
+    float engineTick = 0.0167f;
     while(running) {
         playerPos = playerSprite.getPosition();
-        if (IsKeyDown(KEY_UP)) 
-            playerPos.y -= playerSpeed * dt;
-        if (IsKeyDown(KEY_LEFT))
-            playerPos.x -= playerSpeed * dt;
-        if (IsKeyDown(KEY_DOWN)) 
-            playerPos.y += playerSpeed * dt;
-        if (IsKeyDown(KEY_RIGHT)) 
-            playerPos.x += playerSpeed * dt;
+        if (inputs.at(KEY_UP)) 
+            playerPos.y -= playerSpeed * engineTick;
+        if (inputs.at(KEY_LEFT))
+            playerPos.x -= playerSpeed * engineTick;
+        if (inputs.at(KEY_DOWN)) 
+            playerPos.y += playerSpeed * engineTick;
+        if (inputs.at(KEY_RIGHT)) 
+            playerPos.x += playerSpeed * engineTick;
 
         if (playerPos.x < 0)  playerPos.x = 0;
         if (playerPos.y < 0)  playerPos.y = 0;
@@ -48,6 +47,9 @@ void game() {
         stacklock.unlock();
     }
 }
+
+
+
 int main(int argc, char* argv[]) {
  
 
@@ -62,8 +64,8 @@ int main(int argc, char* argv[]) {
     stacklock.unlock();
 
     running = true;
-    std::thread gameThread = std::thread(game);
-    gameThread.join();
+    std::thread inputProcessor(processInputs);
+    inputProcessor.detach();
 
     float dt;
     InitWindow(windowWidth, windowHeight, windowTitle.c_str());
@@ -74,9 +76,11 @@ int main(int argc, char* argv[]) {
         dt = GetFrameTime();
         stacklock.lock();
         stack.Draw();
+        stack.getInputs(&inputs);
         stacklock.unlock();
-
+        
     }
+    running = false;
     CloseWindow();
     return 0;
 }

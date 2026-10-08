@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include <vector>
+#include <array>
 
 
 class DrawStack;
@@ -12,11 +13,15 @@ class DrawStack {
     private:
         std::vector<IDrawable*> drawList;
         std::vector<IDrawable*> addList;
+        std::vector<IDrawable*> subList;
+        std::array<bool,338> inputs;
     public:
         void Draw();
 
         void addToStack(IDrawable *drawable);
         void removeFromStack(IDrawable *drawable);
+
+        void getInputs(std::array<bool,338> *array);
         
         DrawStack();
 };
