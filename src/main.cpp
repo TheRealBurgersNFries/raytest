@@ -102,6 +102,7 @@ int main(int argc, char* argv[]) {
         playerSprite.setPosition(playerPos);
         #endif
         stacklock.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
         
     }
     running = false;
