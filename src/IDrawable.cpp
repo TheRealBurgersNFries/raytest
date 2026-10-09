@@ -34,13 +34,10 @@ void DrawStack::Draw() {
     }
     EndDrawing();
     
-    // while (int pressed = GetKey()) {
-    //     inputs.at(pressed) = true;
-    // }
-   inputs.at(KEY_UP) = IsKeyDown(KEY_UP);
-   inputs.at(KEY_DOWN) = IsKeyDown(KEY_DOWN);
-   inputs.at(KEY_LEFT) = IsKeyDown(KEY_LEFT);
-   inputs.at(KEY_RIGHT) = IsKeyDown(KEY_RIGHT);
+    inputs.at(KEY_UP) = IsKeyDown(KEY_UP);
+    inputs.at(KEY_DOWN) = IsKeyDown(KEY_DOWN);
+    inputs.at(KEY_LEFT) = IsKeyDown(KEY_LEFT);
+    inputs.at(KEY_RIGHT) = IsKeyDown(KEY_RIGHT);
    
 
 }
