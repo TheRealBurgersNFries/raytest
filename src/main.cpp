@@ -26,6 +26,7 @@ Vector2 playerPos;
 float playerSpeed = 200.0f;
 Sprite playerSprite = Sprite(BLUE);
 std::atomic<bool> running = false;
+std::atomic<bool> inputsToProcess = false;
 
 std::array<bool,338> inputs;
 
@@ -33,25 +34,28 @@ std::array<bool,338> inputs;
 void inputThread() {
     float engineTick = 0.0167f;
     while(running) {
-        playerPos = playerSprite.getPosition();
-        stacklock.lock();
-        stack.getInputs(&inputs);
-        if (inputs.at(KEY_UP)) 
-            playerPos.y -= playerSpeed * engineTick;
-        if (inputs.at(KEY_LEFT))
-            playerPos.x -= playerSpeed * engineTick;
-        if (inputs.at(KEY_DOWN)) 
-            playerPos.y += playerSpeed * engineTick;
-        if (inputs.at(KEY_RIGHT)) 
-            playerPos.x += playerSpeed * engineTick;
+        if (inputsToProcess) {
+            playerPos = playerSprite.getPosition();
+            stacklock.lock();
+            stack.getInputs(&inputs);
+            if (inputs.at(KEY_UP)) 
+                playerPos.y -= playerSpeed * engineTick;
+            if (inputs.at(KEY_LEFT))
+                playerPos.x -= playerSpeed * engineTick;
+            if (inputs.at(KEY_DOWN)) 
+                playerPos.y += playerSpeed * engineTick;
+            if (inputs.at(KEY_RIGHT)) 
+                playerPos.x += playerSpeed * engineTick;
 
-        if (playerPos.x < 0)  playerPos.x = 0;
-        if (playerPos.y < 0)  playerPos.y = 0;
-        if (playerPos.x > windowWidth) playerPos.x = windowWidth;
-        if (playerPos.y > windowHeight) playerPos.x = windowHeight;
-        playerSprite.setPosition(playerPos);
-        stacklock.unlock();
-        inputs.fill(false);
+            if (playerPos.x < 0)  playerPos.x = 0;
+            if (playerPos.y < 0)  playerPos.y = 0;
+            if (playerPos.x > windowWidth) playerPos.x = windowWidth;
+            if (playerPos.y > windowHeight) playerPos.x = windowHeight;
+            playerSprite.setPosition(playerPos);
+            stacklock.unlock();
+            inputs.fill(false);
+            inputsToProcess = false;
+        }
     }
 }
 
@@ -67,7 +71,7 @@ int main(int argc, char* argv[]) {
     stack.addToStack(&bg);
     stack.addToStack(&playerSprite);
     stacklock.unlock();
-    T_Render renderer(&running, 1920, 1080, "raytest", 60, &stack);
+    T_Render renderer(&running, 1920, 1080, "raytest", 60, &stack, &inputsToProcess);
     
     running = true;
     renderer.Start();

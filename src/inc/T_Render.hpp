@@ -20,7 +20,8 @@ class T_Render {
         DrawStack* _stack;
         
         std::atomic<bool>* p_running;
-        std::atomic<bool> render;
+        std::atomic<bool> _render;
+        std::atomic<bool>* p_inputsAvailable; 
         std::mutex m_stackLock;
 
         int _windowWidth;
@@ -33,7 +34,7 @@ class T_Render {
 
     public:
         T_Render(std::atomic<bool>* running, int width, int height, 
-            std::string title, int target, DrawStack* stack);
+            std::string title, int target, DrawStack* stack, std::atomic<bool>* inputs);
         int getFrameTime();
         int getFrameRate();
         void Start();
