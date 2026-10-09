@@ -1,13 +1,16 @@
-#include "raylib.h"
 #include <iostream>
 #include <string>
 #include <vector>
 #include <thread>
 #include <mutex>
 #include <atomic>
+
+#include "raylib.h"
+
 #include "inc/IDrawable.hpp"
 #include "inc/Background.hpp"
 #include "inc/Sprite.hpp"
+#include "inc/T_Render.hpp"
 
 #define THREAD_ATTEMPT
 
@@ -52,25 +55,6 @@ void inputThread() {
     }
 }
 
-void renderThread() {
-    float dt;
-    InitWindow(windowWidth, windowHeight, windowTitle.c_str());
-    SetTargetFPS(60);
-    while (!WindowShouldClose()) {
-    
-        //processEngineUpdates();
-        dt = GetFrameTime();
-        stacklock.lock();
-        stack.Draw();
-        
-        stacklock.unlock();
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(15));
-    }
-    CloseWindow();
-    running = false;
-}
-
 int main(int argc, char* argv[]) {
     
     Background bg = Background(RED);
@@ -83,19 +67,20 @@ int main(int argc, char* argv[]) {
     stack.addToStack(&bg);
     stack.addToStack(&playerSprite);
     stacklock.unlock();
+    T_Render renderer(&running, 1920, 1080, "raytest", 60, &stack);
+    
     running = true;
+    renderer.Start();
     std::thread T_InputThread(inputThread);
-    std::thread T_RenderThread(renderThread);
     T_InputThread.detach();
-    T_RenderThread.detach();
     while(running) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+    renderer.Kill();
     if (T_InputThread.joinable())
         T_InputThread.join();
-    if (T_RenderThread.joinable())
-        T_RenderThread.join();
+    
     
     return 0;
 }

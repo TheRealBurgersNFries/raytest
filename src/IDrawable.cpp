@@ -8,50 +8,50 @@ DrawStack::DrawStack() {
 }
 
 void DrawStack::Draw() {
-    std::stable_sort(subList.begin(), subList.end(), lesserDepthComparer{});
-    auto ib = std::begin(drawList);
+    std::stable_sort(_subList.begin(), _subList.end(), lesserDepthComparer{});
+    auto ib = std::begin(_drawList);
     auto iter = std::remove_if (
-        std::begin(subList), std::end(subList),
+        std::begin(_subList), std::end(_subList),
         [&ib, this](IDrawable* x) -> bool {
-            while (ib != std::end(drawList) && *ib != x) ++ib;
-            return (ib != std::end(drawList) && *ib == x );
+            while (ib != std::end(_drawList) && *ib != x) ++ib;
+            return (ib != std::end(_drawList) && *ib == x );
         });
     
 
-    for (std::vector<IDrawable*>::iterator drawable = addList.begin(); drawable != //
-        addList.end(); drawable++) {
-            drawList.push_back(*drawable);
+    for (std::vector<IDrawable*>::iterator drawable = _addList.begin(); drawable != //
+        _addList.end(); drawable++) {
+            _drawList.push_back(*drawable);
             (*drawable)->setInStack(this);
         }
-    addList.clear();
+    _addList.clear();
 
-    std::stable_sort(drawList.begin(), drawList.end(), lesserDepthComparer{});
+    std::stable_sort(_drawList.begin(), _drawList.end(), lesserDepthComparer{});
 
     BeginDrawing();
-    for (std::vector<IDrawable*>::iterator drawable = drawList.begin(); drawable !=  //
-            drawList.end(); drawable++) {
+    for (std::vector<IDrawable*>::iterator drawable = _drawList.begin(); drawable !=  //
+            _drawList.end(); drawable++) {
         (*drawable)->Draw();
     }
     EndDrawing();
     
-    inputs.at(KEY_UP) = IsKeyDown(KEY_UP);
-    inputs.at(KEY_DOWN) = IsKeyDown(KEY_DOWN);
-    inputs.at(KEY_LEFT) = IsKeyDown(KEY_LEFT);
-    inputs.at(KEY_RIGHT) = IsKeyDown(KEY_RIGHT);
+    _inputs.at(KEY_UP) = IsKeyDown(KEY_UP);
+    _inputs.at(KEY_DOWN) = IsKeyDown(KEY_DOWN);
+    _inputs.at(KEY_LEFT) = IsKeyDown(KEY_LEFT);
+    _inputs.at(KEY_RIGHT) = IsKeyDown(KEY_RIGHT);
    
 
 }
 
 
 void DrawStack::addToStack(IDrawable *drawable) {
-    addList.push_back(drawable);
+    _addList.push_back(drawable);
 }
 
 void DrawStack::removeFromStack(IDrawable *drawable) {
     if (drawable->isThisStack(this))
     {
         if (drawable->getInStack())
-            subList.push_back(drawable);
+            _subList.push_back(drawable);
         //else
             //handle premature removal;
             
@@ -60,34 +60,34 @@ void DrawStack::removeFromStack(IDrawable *drawable) {
 }
 
 void DrawStack::getInputs( std::array<bool,338> *array) {
-    std::copy(std::begin(inputs), std::end(inputs), std::begin(*array));
-    inputs.fill(false);
+    std::copy(std::begin(_inputs), std::end(_inputs), std::begin(*array));
+    _inputs.fill(false);
 }
 
 int IDrawable::getZHeight() const{
-    return heightZ;
+    return _heightZ;
 }
 
 void IDrawable::removeFromStack() {
-    if (inStack){
-        stack->removeFromStack(this);
-        inStack = false;
+    if (_inStack){
+        _stack->removeFromStack(this);
+        _inStack = false;
     }   
 }
 
 void IDrawable::setZHeight(int newZHeight) {
-    heightZ = newZHeight;
+    _heightZ = newZHeight;
 }
 
 void IDrawable::setInStack(DrawStack* newStack) {
-    stack = newStack;
-    inStack = true;
+    _stack = newStack;
+    _inStack = true;
 }
 
 bool IDrawable::getInStack() {
-    return inStack;
+    return _inStack;
 }
 
 bool IDrawable::isThisStack(DrawStack* compStack) {
-    return compStack == stack;
+    return compStack == _stack;
 }

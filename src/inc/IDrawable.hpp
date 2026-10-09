@@ -11,10 +11,10 @@ class IDrawable;
 
 class DrawStack {
     private:
-        std::vector<IDrawable*> drawList;
-        std::vector<IDrawable*> addList;
-        std::vector<IDrawable*> subList;
-        std::array<bool,338> inputs;
+        std::vector<IDrawable*> _drawList;
+        std::vector<IDrawable*> _addList;
+        std::vector<IDrawable*> _subList;
+        std::array<bool,338> _inputs;
     public:
         void Draw();
 
@@ -28,9 +28,9 @@ class DrawStack {
 
 class IDrawable {
     private:
-        int heightZ;
-        DrawStack* stack;
-        bool inStack = false;
+        int _heightZ;
+        DrawStack* _stack;
+        bool _inStack = false;
     public:
         virtual ~IDrawable() = default;
         virtual void Draw() const = 0;

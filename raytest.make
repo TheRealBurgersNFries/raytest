@@ -121,11 +121,13 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/Background.o
 GENERATED += $(OBJDIR)/IDrawable.o
 GENERATED += $(OBJDIR)/Sprite.o
+GENERATED += $(OBJDIR)/T_Render.o
 GENERATED += $(OBJDIR)/helper.o
 GENERATED += $(OBJDIR)/main.o
 OBJECTS += $(OBJDIR)/Background.o
 OBJECTS += $(OBJDIR)/IDrawable.o
 OBJECTS += $(OBJDIR)/Sprite.o
+OBJECTS += $(OBJDIR)/T_Render.o
 OBJECTS += $(OBJDIR)/helper.o
 OBJECTS += $(OBJDIR)/main.o
 
@@ -198,6 +200,9 @@ $(OBJDIR)/IDrawable.o: src/IDrawable.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Sprite.o: src/Sprite.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/T_Render.o: src/T_Render.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/helper.o: src/helper.cpp
