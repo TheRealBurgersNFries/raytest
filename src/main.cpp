@@ -8,6 +8,7 @@
 #include "inc/Background.hpp"
 #include "inc/Sprite.hpp"
 
+#define THREAD_ATTEMPT
 
 int windowWidth = 1920;
 int windowHeight = 1080;
@@ -48,11 +49,7 @@ void processInputs() {
     }
 }
 
-
-
 int main(int argc, char* argv[]) {
- 
-
     
     stacklock.lock();
     Background bg = Background(RED);
@@ -63,20 +60,45 @@ int main(int argc, char* argv[]) {
     stack.addToStack(&playerSprite);
     stacklock.unlock();
 
-    running = true;
-    std::thread inputProcessor(processInputs);
-    inputProcessor.detach();
+
+    
 
     float dt;
     InitWindow(windowWidth, windowHeight, windowTitle.c_str());
     SetTargetFPS(60);
     while (!WindowShouldClose()) {
-        
+        #ifdef THREAD_ATTEMPT
+        if (!running) {
+            running = true;
+            std::thread inputProcessor(processInputs);
+            inputProcessor.detach();
+        } 
+        #endif
+    
         //processEngineUpdates();
         dt = GetFrameTime();
         stacklock.lock();
         stack.Draw();
+        #ifdef THREAD_ATTEMPT
         stack.getInputs(&inputs);
+        #else
+        playerPos = playerSprite.getPosition();
+        if (IsKeyDown(KEY_UP))
+            playerPos.y -= playerSpeed * dt;
+        if (IsKeyDown(KEY_LEFT))
+            playerPos.x -= playerSpeed * dt;
+        if (IsKeyDown(KEY_DOWN)) 
+            playerPos.y += playerSpeed * dt;
+        if (IsKeyDown(KEY_RIGHT)) 
+            playerPos.x += playerSpeed * dt;
+
+        if (playerPos.x < 0)  playerPos.x = 0;
+        if (playerPos.y < 0)  playerPos.y = 0;
+        if (playerPos.x > windowWidth) playerPos.x = windowWidth;
+        if (playerPos.y > windowHeight) playerPos.y = windowHeight;
+        
+        playerSprite.setPosition(playerPos);
+        #endif
         stacklock.unlock();
         
     }
