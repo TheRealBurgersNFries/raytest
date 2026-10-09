@@ -4,6 +4,7 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include "inc/IDrawable.hpp"
 #include "inc/Background.hpp"
 #include "inc/Sprite.hpp"
@@ -19,9 +20,9 @@ std::mutex stacklock;
 DrawStack stack = DrawStack();
 
 Vector2 playerPos;
-float playerSpeed = 2000.0f;
+float playerSpeed = 200.0f;
 Sprite playerSprite = Sprite(BLUE);
-bool running;
+std::atomic<bool> running = false;
 
 std::array<bool,338> inputs;
 
@@ -30,6 +31,8 @@ void processInputs() {
     float engineTick = 0.0167f;
     while(running) {
         playerPos = playerSprite.getPosition();
+        stacklock.lock();
+        stack.getInputs(&inputs);
         if (inputs.at(KEY_UP)) 
             playerPos.y -= playerSpeed * engineTick;
         if (inputs.at(KEY_LEFT))
@@ -43,34 +46,35 @@ void processInputs() {
         if (playerPos.y < 0)  playerPos.y = 0;
         if (playerPos.x > windowWidth) playerPos.x = windowWidth;
         if (playerPos.y > windowHeight) playerPos.x = windowHeight;
-        stacklock.lock();
         playerSprite.setPosition(playerPos);
         stacklock.unlock();
+        inputs.fill(false);
     }
 }
 
 int main(int argc, char* argv[]) {
     
-    stacklock.lock();
     Background bg = Background(RED);
     bg.setZHeight(0);
-    stack.addToStack(&bg);
-
+    
     playerSprite.setPosition({400, 200});
+    playerSprite.setZHeight(200);
+    
+    stacklock.lock();
+    stack.addToStack(&bg);
     stack.addToStack(&playerSprite);
     stacklock.unlock();
-
-
-    
 
     float dt;
     InitWindow(windowWidth, windowHeight, windowTitle.c_str());
     SetTargetFPS(60);
+    #ifdef THREAD_ATTEMPT
+    std::thread inputProcessor(processInputs);
+    #endif
     while (!WindowShouldClose()) {
         #ifdef THREAD_ATTEMPT
         if (!running) {
             running = true;
-            std::thread inputProcessor(processInputs);
             inputProcessor.detach();
         } 
         #endif
@@ -79,9 +83,7 @@ int main(int argc, char* argv[]) {
         dt = GetFrameTime();
         stacklock.lock();
         stack.Draw();
-        #ifdef THREAD_ATTEMPT
-        stack.getInputs(&inputs);
-        #else
+        #ifndef THREAD_ATTEMPT
         playerPos = playerSprite.getPosition();
         if (IsKeyDown(KEY_UP))
             playerPos.y -= playerSpeed * dt;
@@ -103,6 +105,9 @@ int main(int argc, char* argv[]) {
         
     }
     running = false;
+    #ifdef THREAD_ATTEMPT
+    inputProcessor.join();
+    #endif
     CloseWindow();
     return 0;
 }
